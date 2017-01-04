@@ -7,3 +7,5 @@ $data: spatio-temporal time series (matrix form)
 $place: longitude, latitude and altitude information of weather stations
 
 $shape: shape polygon file of South Korea (WGS84)
+
+I added this data to compare with actual competition data set.
