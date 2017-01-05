@@ -10,3 +10,5 @@ Here is [EVA 2017](http://www.eva2017.nl) website.
 - Korea: I added this data to compare with actual competition data set. Data contatins daily precipitation from 69 weather stations in Korea. Among them, 61 stations have 40 years precipitation data. 8 stations have 20 years precipitation data.
 
 - Documents: `Challenge.pdf` is original notice paper about the challenge "Prediction of extremal precipitation".
+
+- Codes: contains our prediction codes.

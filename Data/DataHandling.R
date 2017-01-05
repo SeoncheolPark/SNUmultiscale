@@ -69,3 +69,5 @@ setwd("~/Dropbox/Github/SNUmultiscale/Data/")
 FranceRain <- list()
 FranceRain$data <- finaldata
 FranceRain$place <- placedata
+
+saveRDS(FranceRain, "Rain.RDS")
