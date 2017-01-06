@@ -11,7 +11,7 @@ lapply(wants, library, character.only=T)
 ##you should change data location
 rain <- readRDS("~/Dropbox/Github/SNUmultiscale/Data/Rain.RDS")
 ## show spatio-temporal time series
-rain$data
+#rain$data
 ## show locations
-rain$place
+#rain$place
 plot(rain$place$stations.long, rain$place$stations.lat)
