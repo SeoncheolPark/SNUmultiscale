@@ -37,27 +37,14 @@ imsi <- split(dataorig, dataorig$stations.num) #length 35 list
 time_index_daily <- seq(from = as.POSIXct("1972-12-31 00:00", tz="Europe/Paris"), to = as.POSIXct("1995-12-31 00:00", tz="Europe/Paris"), by = "day")
 header_tag <- c("number","date", "precip")
 
-finaldata <-c()
+imsi[[1]] <- xts(x=imsi[[1]]$prcp ,order.by=imsi[[1]]$dts, tzone="Europe/Paris")
+finaldata <- imsi[[1]]
+colnames(finaldata) <- "1"
 
-for(i in 1:length(imsi)){
-  data <- imsi[[i]]
-  eventdata <- xts(rep(-1,length(time_index_daily)), order.by = time_index_daily)
-  if(time_index_daily[1]!=data$dts[1]){
-    NAtime <- seq(from = as.POSIXct("1972-12-31 00:00"), to = as.POSIXct(data$dts[1])-(3600*24), by = "day")
-    eventdata[NAtime] <- -999
-  }
-  if(time_index_daily[length(time_index_daily)]!=data$dts[length(data$dts)]){
-    NAtime2 <- seq(from = as.POSIXct(data$dts[length(data$dts)])+(3600*24), to = as.POSIXct("1995-12-31 23:00"), by = "hour")
-    eventdata[NAtime2] <- -999
-  }
-  #final imputation
-  for(i in 1:nrow(data)){
-    eventdata[which(time(eventdata) == data$dts[i])] <- data$prcp[i]
-  }
-  eventdata[eventdata==-1 | eventdata==-999,] <- NA
-  colnames(eventdata) <- unique(data$stations.num)
-  
-  finaldata <- cbind(finaldata, eventdata)
+for(j in 2:length(imsi)){
+  imsi[[j]] <- xts(x=imsi[[j]]$prcp ,order.by=imsi[[j]]$dts, tzone="Europe/Paris")
+  colnames(imsi[[j]]) <- j
+  finaldata <- merge(finaldata, imsi[[j]], all=TRUE)
 }
 colnames(finaldata) <- unique(dataorig$stations.num)
 
