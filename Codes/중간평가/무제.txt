@@ -1,0 +1,1 @@
+먼저 크리깅 후 그 잔차를 random forest
