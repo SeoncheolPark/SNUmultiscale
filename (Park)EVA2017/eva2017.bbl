@@ -1,0 +1,67 @@
+\begin{thebibliography}{}
+
+\bibitem[Athey et~al., 2016]{Athey2016}
+Athey, S., Tibshirani, J., and Wager, S. (2016).
+\newblock Generalized random forests.
+
+\bibitem[Aznarte, 2017]{Aznarte2017}
+Aznarte, J.~L. (2017).
+\newblock Probabilistic forecasting for extreme $\text{NO}_{2}$ pollution
+  episodes.
+\newblock {\em Environmental Pollution}, 229:321--328.
+
+\bibitem[Breiman, 1996]{Breiman1996}
+Breiman, L. (1996).
+\newblock Bagging predictors.
+\newblock {\em Machine Learning}, 24(2):123--140.
+
+\bibitem[Breiman, 2001]{Breiman2001}
+Breiman, L. (2001).
+\newblock Random forests.
+\newblock {\em Machine Learning}, 45(1):5--32.
+
+\bibitem[Breiman et~al., 1984]{Breiman1984}
+Breiman, L., Friedman, J., Stone, C.~J., and Olshen, R. (1984).
+\newblock {\em Classification and Regression Trees}.
+\newblock Taylor and Francis.
+
+\bibitem[Efron and Tibshirani, 1997]{Efron1997}
+Efron, B. and Tibshirani, R. (1997).
+\newblock Improvements on cross-validation: The .632+ bootstrap method.
+\newblock {\em Journal of the American Statistical Association},
+  92(438):548--560.
+
+\bibitem[Gregorutti et~al., 2017]{Gregorutti2017}
+Gregorutti, B., Michel, B., and Saint-Pierre, P. (2017).
+\newblock Correlation and variable importance in random forests.
+\newblock {\em Statistics and Computing}, 27(3):659--678.
+
+\bibitem[Hastie et~al., 2009]{Hastie2009}
+Hastie, T., Tibshirani, R., and Friedman, J. (2009).
+\newblock {\em The Elements of Statistical Learning: Data Mining, Inference,
+  and Prediction,}.
+\newblock Springer Science and Business Media, 2nd edition.
+
+\bibitem[Jammalamadaka and Lund, 2006]{Jammalamadaka2006}
+Jammalamadaka, S.~R. and Lund, U.~J. (2006).
+\newblock The effect of wind direction on ozone levels: a case study.
+\newblock {\em Environmental and Ecological Statistics}, 13(3):287--298.
+
+\bibitem[Johnson and Wehrly, 1978]{Johnson1978}
+Johnson, R.~A. and Wehrly, T.~E. (1978).
+\newblock Some angular-linear distributions and related regression models.
+\newblock {\em Journal of the American Statistical Association},
+  73(363):602--606.
+
+\bibitem[Meinshausen, 2006]{Meinshausen2006}
+Meinshausen, N. (2006).
+\newblock Quantile regression forests.
+\newblock {\em Journal of Machine Learning Research}, 7:983--999.
+
+\bibitem[Taillardat et~al., 2016]{Taillardat2016}
+Taillardat, M., Mestre, O., Zamo, M., and Naveau, P. (2016).
+\newblock Calibrated ensemble forecasts using quantile regression forests and
+  ensemble model output statistics.
+\newblock {\em Journal of Machine Learning Research}, 144(6):2375--2393.
+
+\end{thebibliography}

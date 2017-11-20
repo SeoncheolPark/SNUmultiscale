@@ -1,0 +1,14 @@
+\BOOKMARK [1][-]{section.1}{Introduction}{}% 1
+\BOOKMARK [1][-]{section.2}{Data Description and Missing Data Treatment}{}% 2
+\BOOKMARK [1][-]{section.3}{Methods}{}% 3
+\BOOKMARK [2][-]{subsection.3.1}{Regression Tree}{section.3}% 4
+\BOOKMARK [2][-]{subsection.3.2}{Random Forests}{section.3}% 5
+\BOOKMARK [2][-]{subsection.3.3}{Quantile Regression Forests}{section.3}% 6
+\BOOKMARK [2][-]{subsection.3.4}{Generalized Quantile Regression Forests}{section.3}% 7
+\BOOKMARK [2][-]{subsection.3.5}{Circular Transform}{section.3}% 8
+\BOOKMARK [1][-]{section.4}{Models and Results}{}% 9
+\BOOKMARK [2][-]{subsection.4.1}{Models}{section.4}% 10
+\BOOKMARK [2][-]{subsection.4.2}{Tuning parameter selection}{section.4}% 11
+\BOOKMARK [2][-]{subsection.4.3}{Results}{section.4}% 12
+\BOOKMARK [2][-]{subsection.4.4}{Discussion}{section.4}% 13
+\BOOKMARK [1][-]{section.5}{Limitations and Further Works}{}% 14
