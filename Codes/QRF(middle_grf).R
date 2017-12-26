@@ -1,10 +1,10 @@
 ########################################
 ##Load Packages
 ########################################
-wants <- c("abind", "animation", "automap", "cluster", "ClusterMax", "fields", "forecast", "geoR", "GeoXp", "ggmap", "ggplot2", "gstat", "lubridate", "mapdata", "maps", "maptools", "quantregRanger", "nlt" , "rgdal", "rgeos", "rrcov", "shapefiles", "sp", "SpatialExtremes", "TSA", "psych", "tseries", "wavethresh", "xts")
+wants <- c("abind", "animation", "automap", "cluster", "ClusterMax", "fields", "forecast", "geoR", "GeoXp", "ggmap", "ggplot2", "gstat", "lubridate", "mapdata", "maps", "maptools", "nlt" , "rgdal", "rgeos", "rrcov", "shapefiles", "sp", "SpatialExtremes", "TSA", "psych", "tseries", "wavethresh", "xts")
 has   <- wants %in% rownames(installed.packages())
 if(any(!has)) install.packages(wants[!has])
-lapply(wants, library, character.only=T)
+#lapply(wants, library, character.only=T)
 source('~/Dropbox/Github/SNUmultiscale/Codes/Sources/source.R', chdir = TRUE)
 
 C1 <- c("2","4","5","6","11","12","13","15","16","18","19","20","21","22","23","24","25","26","28","29","30","32","33","34","35","36","38","39","40")
@@ -21,6 +21,14 @@ rain <- readRDS("~/Dropbox/Github/SNUmultiscale/Data/Rain.RDS")
 #rain$place
 sum(!is.na(rain$data))
 ##1994년 9월 1일부터 크게 줄어듬
+
+plot(rain$place$stations.long, rain$place$stations.lat)
+
+par(mar=c(5.1,4.1,4.1,2.1)/10)
+par(mfrow=c(7,5))
+for(i in 1:ncol(rain$data)){
+  plot(as.numeric(rain$data[,i]), xlab="", ylab="")
+}
 
 ## na check
 colSums(rain$data==0, na.rm=TRUE)
@@ -60,15 +68,12 @@ rain$data[1462+which(!is.na(match(rain$data["1977-01-01/1979-01-01",34], c(0.91,
 
 rain_training <- rain$data
 
-
 ########################################
-##QRF(Meinshausen, 2006)
+##GRF(Tibshirani et al, 2017)
 ########################################
 library(quantregForest)
 library(circular)
-
-library(lomb) #periodogram with missing data
-
+library(grf)
 
 ## circular statistics를 확인해보자
 month <- as.numeric(format(date(rain$data), '%m')); omega <- pi/6
@@ -93,12 +98,8 @@ rain_training_new <- rain_training_new[complete.cases(rain_training_new),]
 N <- 100; result_combined <- list();
 for(i in 1:100){
   set.seed(i)
-  #qrf <- quantregForest(x=rain_training_new[,-c(1,6)], y=rain_training_new[,1], what=c(0.998), ntree=500, mtry=1, nodesize=5, importance=TRUE, keep.inbag=TRUE, keep.forest=TRUE)
-  #qrf <- quantregForest(x=rain_training_new[,-c(1,6)], y=rain_training_new[,1], quantiles=c(0.998), ntree=500, mtry=1, nodesize=5, importance=TRUE)
-  #quantregRanger()
-  qrf = quantregRanger(rain ~ lon + lat + cosmonth + sinmonth, data = rain_training_new, params.ranger = list(mtry = 1, importance="permutation", num.trees=500, min.node.size=5))
-  
-  
+  qrf <- quantile_forest(X=as.matrix(rain_training_new[,-c(1,6)]), Y=rain_training_new[,1], quantiles=c(0.998), num.trees=500, mtry=1, min.node.size=5, sample.fraction=ceiling(.632*nrow(rain_training_new)))
+  #qrf <- quantregForest(x=rain_training_new[,-c(1,6)], y=rain_training_new[,1], what=c(0.998), ntree=500)
   #qrf <- quantregForest(x=Xtrain, y=Ytrain, nodesize=10,sampsize=30)
   
   ## make test data
@@ -110,12 +111,11 @@ for(i in 1:100){
     rain_test_new <- rbind(rain_test_new, data_imsi)
   }
   
+  predictQR  <- predict(qrf, as.matrix(rain_test_new[,-5]), quantiles=c(0.998))
   #predictQR  <- predict(qrf, rain_test_new, what=0.998)
-  predictQR  <- predict(qrf, rain_test_new, quantiles=c(0.998))
   results <- cbind(rain_test_new, predictQR, month=rep(month_format_test, nrow(rain$place)), station.num=rep(rownames(rain$place), each=12))
   
-  #results_matrix <- matrix(results$predictQR, nrow=12, ncol=40, byrow=F)
-  results_matrix <- matrix(results$`quantile= 0.998`, nrow=12, ncol=40, byrow=F)
+  results_matrix <- matrix(results$predictQR, nrow=12, ncol=40, byrow=F)
   rownames(results_matrix) <- c("12","1","2","3","4","5","6","7","8","9","10","11")
   colnames(results_matrix) <- c(1:40)
   results_matrix <- rbind(results_matrix[-1,], results_matrix[1,])
@@ -130,15 +130,10 @@ for(i in 1:100){
 
 result_combined_small <- list()
 for(i in 1:length(result_combined)){
-  result_combined_small[[i]] <- list(r=result_combined[[i]]$r, v=result_combined[[i]]$q$variable.importance, n=result_combined[[i]]$q$ntree, m=result_combined[[i]]$q$mtry, minnodesize=5)
+  result_combined_small[[i]] <- list(r=result_combined[[i]]$r, n=result_combined[[i]]$q$num.trees, m=1, minnodesize=5)
 }
 
-result_combined_middle <- list()
-for(i in 1:length(result_combined)){
-  result_combined_middle[[i]] <- list(r=result_combined[[i]]$r, v=result_combined[[i]]$q$variable.importance, n=result_combined[[i]]$q$ntree, m=result_combined[[i]]$q$mtry, q=result_combined[[i]]$q$forest, minnodesize=5)
-}
 setwd("~/Dropbox/EVA2017/AfterEVA/Data/New")
-saveRDS(result_combined_middle, "middle100(500trees)mtry1minnodesize5(ranger)(forest).RDS")
+saveRDS(result_combined_small, "middle100(500treesgrf)mtry1minnodesize5.RDS")
 
-setwd("~/Dropbox/EVA2017/AfterEVA/Data/New")
-saveRDS(result_combined_small, "middle100(500trees)mtry1minnodesize5(ranger).RDS")
+

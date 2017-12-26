@@ -1,7 +1,7 @@
 ########################################
 ##Load Packages
 ########################################
-wants <- c("abind", "animation", "automap", "cluster", "ClusterMax", "fields", "forecast", "geoR", "GeoXp", "ggmap", "ggplot2", "gstat", "lubridate", "mapdata", "maps", "maptools", "quantregRanger", "nlt" , "rgdal", "rgeos", "rrcov", "shapefiles", "sp", "SpatialExtremes", "TSA", "psych", "tseries", "wavethresh", "xts")
+wants <- c("abind", "animation", "automap", "cluster", "ClusterMax", "fields", "forecast", "geoR", "GeoXp", "ggmap", "ggplot2", "gstat", "lubridate", "mapdata", "maps", "maptools", "nlt" , "quantregRanger", "rgdal", "rgeos", "rrcov", "shapefiles", "sp", "SpatialExtremes", "TSA", "psych", "tseries", "wavethresh", "xts")
 has   <- wants %in% rownames(installed.packages())
 if(any(!has)) install.packages(wants[!has])
 lapply(wants, library, character.only=T)
@@ -67,9 +67,6 @@ rain_training <- rain$data
 library(quantregForest)
 library(circular)
 
-library(lomb) #periodogram with missing data
-
-
 ## circular statistics를 확인해보자
 month <- as.numeric(format(date(rain$data), '%m')); omega <- pi/6
 cosmonth <- cos(omega*month) ; sinmonth <- sin(omega*month)
@@ -81,8 +78,8 @@ cosmonth <- cos(omega*month) ; sinmonth <- sin(omega*month)
 rain_training_new <- c()
 month_format <- format(index(rain_training),"%m")
 for(i in 1:ncol(rain_training)){
-  #data_imsi <- data.frame(rain=as.numeric(rain_training[,i]), lon=rep(rain$place$stations.long[as.numeric(colnames(rain_training)[i])], nrow(rain_training)),lat=rep(rain$place$stations.lat[as.numeric(colnames(rain_training)[i])], nrow(rain_training)), month=month_format)
-  data_imsi <- data.frame(rain=as.numeric(rain_training[,i]), lon=rep(rain$place$stations.long[as.numeric(colnames(rain_training)[i])], nrow(rain_training)),lat=rep(rain$place$stations.lat[as.numeric(colnames(rain_training)[i])], nrow(rain_training)), cosmonth=cos(pi*as.numeric(month_format)/6), sinmonth=sin(pi*as.numeric(month_format)/6), month=month_format)
+  data_imsi <- data.frame(rain=as.numeric(rain_training[,i]), lon=rep(rain$place$stations.long[as.numeric(colnames(rain_training)[i])], nrow(rain_training)),lat=rep(rain$place$stations.lat[as.numeric(colnames(rain_training)[i])], nrow(rain_training)), month=month_format)
+  #data_imsi <- data.frame(rain=as.numeric(rain_training[,i]), lon=rep(rain$place$stations.long[as.numeric(colnames(rain_training)[i])], nrow(rain_training)),lat=rep(rain$place$stations.lat[as.numeric(colnames(rain_training)[i])], nrow(rain_training)), cosmonth=cos(pi*as.numeric(month_format)/6), sinmonth=sin(pi*as.numeric(month_format)/6), month=month_format)
   rain_training_new <- rbind(rain_training_new, data_imsi)
 }
 rain_training_new <- rain_training_new[complete.cases(rain_training_new),]
@@ -93,20 +90,18 @@ rain_training_new <- rain_training_new[complete.cases(rain_training_new),]
 N <- 100; result_combined <- list();
 for(i in 1:100){
   set.seed(i)
-  #qrf <- quantregForest(x=rain_training_new[,-c(1,6)], y=rain_training_new[,1], what=c(0.998), ntree=500, mtry=1, nodesize=5, importance=TRUE, keep.inbag=TRUE, keep.forest=TRUE)
-  #qrf <- quantregForest(x=rain_training_new[,-c(1,6)], y=rain_training_new[,1], quantiles=c(0.998), ntree=500, mtry=1, nodesize=5, importance=TRUE)
-  #quantregRanger()
-  qrf = quantregRanger(rain ~ lon + lat + cosmonth + sinmonth, data = rain_training_new, params.ranger = list(mtry = 1, importance="permutation", num.trees=500, min.node.size=5))
-  
-  
+  #rain_training_new[,6] <- as.factor(rain_training_new[,6])
+  #qrf <- quantregForest(x=rain_training_new[,-c(1,4,5)], y=rain_training_new[,1], what=c(0.998), ntree=500, mtry=1, nodesize=5)
   #qrf <- quantregForest(x=Xtrain, y=Ytrain, nodesize=10,sampsize=30)
+  qrf = quantregRanger(rain ~ lon + lat + month, data = rain_training_new, params.ranger = list(mtry = 1, importance="permutation", num.trees=500, min.node.size=20))
+  
   
   ## make test data
   rain_test_new <- c()
   month_format_test <- unique(format(index(rain_training),"%m"))
   for(k in 1:nrow(rain$place)){
-    #data_imsi <- data.frame(lon=rep(rain$place$stations.long[k], 12), lat=rep(rain$place$stations.lat[k], 12), month=unique(format(index(rain_training),"%m")))
-    data_imsi <- data.frame(lon=rep(rain$place$stations.long[k], 12), lat=rep(rain$place$stations.lat[k], 12), cosmonth=cos(pi*as.numeric(month_format_test)/6), sinmonth=sin(pi*as.numeric(month_format_test)/6), month=month_format_test)
+    data_imsi <- data.frame(lon=rep(rain$place$stations.long[k], 12), lat=rep(rain$place$stations.lat[k], 12), month=unique(format(index(rain_training),"%m")))
+    #data_imsi <- data.frame(lon=rep(rain$place$stations.long[k], 12), lat=rep(rain$place$stations.lat[k], 12), cosmonth=cos(pi*as.numeric(month_format_test)/6), sinmonth=sin(pi*as.numeric(month_format_test)/6), month=month_format_test)
     rain_test_new <- rbind(rain_test_new, data_imsi)
   }
   
@@ -130,15 +125,8 @@ for(i in 1:100){
 
 result_combined_small <- list()
 for(i in 1:length(result_combined)){
-  result_combined_small[[i]] <- list(r=result_combined[[i]]$r, v=result_combined[[i]]$q$variable.importance, n=result_combined[[i]]$q$ntree, m=result_combined[[i]]$q$mtry, minnodesize=5)
+  result_combined_small[[i]] <- list(r=result_combined[[i]]$r, v=result_combined[[i]]$q$variable.importance, n=result_combined[[i]]$q$ntree, m=result_combined[[i]]$q$mtry, minnodesize=20)
 }
 
-result_combined_middle <- list()
-for(i in 1:length(result_combined)){
-  result_combined_middle[[i]] <- list(r=result_combined[[i]]$r, v=result_combined[[i]]$q$variable.importance, n=result_combined[[i]]$q$ntree, m=result_combined[[i]]$q$mtry, q=result_combined[[i]]$q$forest, minnodesize=5)
-}
 setwd("~/Dropbox/EVA2017/AfterEVA/Data/New")
-saveRDS(result_combined_middle, "middle100(500trees)mtry1minnodesize5(ranger)(forest).RDS")
-
-setwd("~/Dropbox/EVA2017/AfterEVA/Data/New")
-saveRDS(result_combined_small, "middle100(500trees)mtry1minnodesize5(ranger).RDS")
+saveRDS(result_combined_small, "middle100(500treesnocircular)mtry1minnodesize20.RDS")
